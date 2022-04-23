@@ -32,33 +32,54 @@ class Bird:
         self.vel_y = 0.0
         self.acc_x = 0.0
         self.acc_y = 0.0
-        self.y_bottom = 0
-        self.y_top = 0
+        #self.y_bottom = 0
+        #self.y_top = 0
         self.surface = sprites.subsurface((380,185,20,20))
         self.surface = pygame.transform.scale(self.surface, (SCALE*20, SCALE*20))
+        self.state = 0 # Neutral state
+        
         
     def lift(self):
-        self.vel_y = -10.0
-        self.acc_y = 0.0
-        self.y_bottom = max(0, self.y + int(self.vel_y * JUMP_FPS))
-    
+        self.state = 1 # Lift state
+        self.update_state()
+
+    def update_state(self):
+        if self.state == 0:
+            self.vel_y = 0.0
+            self.acc_y = 0.0
+            self.counter_lift = 0
+        if self.state == 1:
+            self.vel_y = -10.0
+            self.acc_y = 0.0
+            self.counter_lift = 0
+        if self.state == 2:
+            self.counter_lift = 0
+            self.vel_y = 0.0
+            self.acc_y = 0.7
+        
+    def check_state(self):
+        if self.state == 1:
+            self.counter_lift = self.counter_lift + 1
+            if self.counter_lift > JUMP_FPS:
+                self.state = 2
+                self.update_state()
+        if self.y < 0:
+            self.y = 0
+            self.state = 2
+            self.update_state()
+        
+            
     def update(self):
         self.x = self.x + int(self.vel_x)
         self.y = self.y + int(self.vel_y)
         self.vel_x = self.vel_x + self.acc_x
         self.vel_y = self.vel_y + self.acc_y
         
-        if self.y < self.y_bottom:
-            self.vel_y = 0.0
-            self.acc_y = 0.7
-            self.y = self.y_bottom
-            self.y_bottom = 0
+        self.check_state()
    
 pygame.init()
 
-bird1 = Bird(WIDTH/3, HEIGHT/2)
-bird2 = Bird(WIDTH/4, HEIGHT*3/4)
-
+bird = Bird(WIDTH/3, HEIGHT/2)
 
 isActive = True
 while isActive:
@@ -68,11 +89,8 @@ while isActive:
             isActive = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                bird1.lift()
-            if event.key == pygame.K_w:
-                bird2.lift()
-    bird1.update()
-    bird2.update()
+                bird.lift()
+    bird.update()
 
     keys = pygame.key.get_pressed()
         
@@ -80,8 +98,7 @@ while isActive:
         isActive = False
     clock.tick(FPS)
     
-    WINDOW.blit(bird1.surface, (bird1.x, bird1.y))
-    WINDOW.blit(bird2.surface, (bird2.x, bird2.y))
+    WINDOW.blit(bird.surface, (bird.x, bird.y))
     pygame.display.update()
 pygame.quit()
 
