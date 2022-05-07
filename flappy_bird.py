@@ -24,6 +24,19 @@ WINDOW.fill(BLACK)
 FPS = 60
 JUMP_FPS = 30
 
+class Pipe:
+    def __init__(self, init_x, height, gap):
+        self.x = init_x
+        self.surf_top = sprites.subsurface((152,3,26,160))
+        self.surf_bottom = sprites.subsurface((180,3,26,160))
+        self.surf_top = pygame.transform.scale(self.surf_top, (SCALE*26, SCALE*160))
+        self.surf_bottom = pygame.transform.scale(self.surf_bottom, (SCALE*26, SCALE*160))
+        self.height = height
+        self.gap = gap
+    def draw(self):
+        WINDOW.blit(self.surf_top, (self.x,-SCALE*160+self.height))
+        WINDOW.blit(self.surf_bottom, (self.x, self.height + self.gap))
+
 class Bird:
     def __init__(self, init_x, init_y):
         self.x = init_x
@@ -32,8 +45,6 @@ class Bird:
         self.vel_y = 0.0
         self.acc_x = 0.0
         self.acc_y = 0.0
-        #self.y_bottom = 0
-        #self.y_top = 0
         self.surface = sprites.subsurface((380,185,20,20))
         self.surface = pygame.transform.scale(self.surface, (SCALE*20, SCALE*20))
         self.state = 0 # Neutral state
@@ -76,10 +87,14 @@ class Bird:
         self.vel_y = self.vel_y + self.acc_y
         
         self.check_state()
-   
+    
+    def draw(self):
+        WINDOW.blit(self.surface, (self.x, self.y))
+        
 pygame.init()
 
 bird = Bird(WIDTH/3, HEIGHT/2)
+pipe = Pipe(200,100,50)
 
 isActive = True
 while isActive:
@@ -98,7 +113,9 @@ while isActive:
         isActive = False
     clock.tick(FPS)
     
-    WINDOW.blit(bird.surface, (bird.x, bird.y))
+    bird.draw()
+    pipe.draw()
+    
     pygame.display.update()
 pygame.quit()
 
