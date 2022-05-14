@@ -7,7 +7,9 @@ Created on Sat Mar 26 10:00:20 2022
 """
 import pygame
 
-WIDTH = 600
+
+PIPE_DISTANCE = 300
+WIDTH = PIPE_DISTANCE*3
 HEIGHT = 800
 SCALE = 4
 
@@ -22,7 +24,7 @@ clock = pygame.time.Clock()
 WINDOW = pygame.display.set_mode((WIDTH,HEIGHT))
 WINDOW.fill(BLACK)
 FPS = 60
-JUMP_FPS = 30
+JUMP_FPS = 6
 
 class Pipe:
     def __init__(self, init_x, height, gap):
@@ -33,9 +35,20 @@ class Pipe:
         self.surf_bottom = pygame.transform.scale(self.surf_bottom, (SCALE*26, SCALE*160))
         self.height = height
         self.gap = gap
+        self.active = False
+    
     def draw(self):
         WINDOW.blit(self.surf_top, (self.x,-SCALE*160+self.height))
         WINDOW.blit(self.surf_bottom, (self.x, self.height + self.gap))
+    
+    def update(self):
+        if self.active == True:
+            self.x = self.x - 2
+            if self.x < -SCALE*26:
+                self.x = WIDTH + PIPE_DISTANCE - SCALE*26
+    
+    def move(self):
+        self.active = True
 
 class Bird:
     def __init__(self, init_x, init_y):
@@ -94,7 +107,10 @@ class Bird:
 pygame.init()
 
 bird = Bird(WIDTH/3, HEIGHT/2)
-pipe = Pipe(200,100,50)
+pipe1 = Pipe(WIDTH, 100, 175)
+pipe2 = Pipe(WIDTH + PIPE_DISTANCE, 200, 175)
+pipe3 = Pipe(WIDTH + 2*PIPE_DISTANCE, 150, 175)
+pipe4 = Pipe(WIDTH + 3*PIPE_DISTANCE, 250, 175)
 
 isActive = True
 while isActive:
@@ -105,7 +121,15 @@ while isActive:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 bird.lift()
+                pipe1.move()
+                pipe2.move()
+                pipe3.move()
+                pipe4.move()
     bird.update()
+    pipe1.update()
+    pipe2.update()
+    pipe3.update()
+    pipe4.update()
 
     keys = pygame.key.get_pressed()
         
@@ -114,7 +138,11 @@ while isActive:
     clock.tick(FPS)
     
     bird.draw()
-    pipe.draw()
+    pipe1.draw()
+    pipe2.draw()
+    pipe3.draw()
+    pipe4.draw()
+    
     
     pygame.display.update()
 pygame.quit()
