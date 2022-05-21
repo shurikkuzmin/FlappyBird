@@ -47,7 +47,7 @@ class Pipe:
             if self.x < -SCALE*26:
                 self.x = WIDTH + PIPE_DISTANCE - SCALE*26
     
-    def move(self):
+    def react_space(self):
         self.active = True
 
 class Bird:
@@ -63,7 +63,7 @@ class Bird:
         self.state = 0 # Neutral state
         
         
-    def lift(self):
+    def react_space(self):
         self.state = 1 # Lift state
         self.update_state()
 
@@ -112,6 +112,9 @@ pipe2 = Pipe(WIDTH + PIPE_DISTANCE, 200, 175)
 pipe3 = Pipe(WIDTH + 2*PIPE_DISTANCE, 150, 175)
 pipe4 = Pipe(WIDTH + 3*PIPE_DISTANCE, 250, 175)
 
+pipes = [pipe1, pipe2, pipe3, pipe4]
+objects = [bird, pipe1, pipe2, pipe3, pipe4]
+
 isActive = True
 while isActive:
     WINDOW.fill(BLACK)
@@ -120,16 +123,11 @@ while isActive:
             isActive = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                bird.lift()
-                pipe1.move()
-                pipe2.move()
-                pipe3.move()
-                pipe4.move()
-    bird.update()
-    pipe1.update()
-    pipe2.update()
-    pipe3.update()
-    pipe4.update()
+                for obj in objects:
+                    obj.react_space()
+    
+    for obj in objects:
+        obj.update()
 
     keys = pygame.key.get_pressed()
         
