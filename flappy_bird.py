@@ -6,10 +6,12 @@ Created on Sat Mar 26 10:00:20 2022
 @author: shurik
 """
 import pygame
+import random
 
 
 PIPE_DISTANCE = 300
-WIDTH = PIPE_DISTANCE*3
+NUM_PIPES = 4
+WIDTH = PIPE_DISTANCE*(NUM_PIPES - 1)
 HEIGHT = 800
 SCALE = 4
 
@@ -27,13 +29,13 @@ FPS = 60
 JUMP_FPS = 6
 
 class Pipe:
-    def __init__(self, init_x, height, gap):
+    def __init__(self, init_x, gap):
         self.x = init_x
         self.surf_top = sprites.subsurface((152,3,26,160))
         self.surf_bottom = sprites.subsurface((180,3,26,160))
         self.surf_top = pygame.transform.scale(self.surf_top, (SCALE*26, SCALE*160))
         self.surf_bottom = pygame.transform.scale(self.surf_bottom, (SCALE*26, SCALE*160))
-        self.height = height
+        self.height = random.randint(50,HEIGHT-50-gap)
         self.gap = gap
         self.active = False
     
@@ -46,6 +48,7 @@ class Pipe:
             self.x = self.x - 2
             if self.x < -SCALE*26:
                 self.x = WIDTH + PIPE_DISTANCE - SCALE*26
+                self.height = random.randint(50,HEIGHT - 50 - self.gap)
     
     def react_space(self):
         self.active = True
@@ -107,13 +110,11 @@ class Bird:
 pygame.init()
 
 bird = Bird(WIDTH/3, HEIGHT/2)
-pipe1 = Pipe(WIDTH, 100, 175)
-pipe2 = Pipe(WIDTH + PIPE_DISTANCE, 200, 175)
-pipe3 = Pipe(WIDTH + 2*PIPE_DISTANCE, 150, 175)
-pipe4 = Pipe(WIDTH + 3*PIPE_DISTANCE, 250, 175)
+objects = [bird]
 
-pipes = [pipe1, pipe2, pipe3, pipe4]
-objects = [bird, pipe1, pipe2, pipe3, pipe4]
+for i in range(NUM_PIPES):
+    pipe = Pipe(WIDTH + i * PIPE_DISTANCE,175)
+    objects.append(pipe)
 
 isActive = True
 while isActive:
@@ -135,13 +136,10 @@ while isActive:
         isActive = False
     clock.tick(FPS)
     
-    bird.draw()
-    pipe1.draw()
-    pipe2.draw()
-    pipe3.draw()
-    pipe4.draw()
-    
-    
+    for obj in objects:
+        obj.draw()
+        
     pygame.display.update()
+    
 pygame.quit()
 
